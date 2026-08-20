@@ -1,3 +1,8 @@
+<div align="center">
+  <img src="assets/banner.svg" width="100%" alt="🧬 Healthcare Lab Automation — HIPAA-Compliant — banner"/>
+</div>
+
+
 # 🧬 Healthcare Lab Automation — HIPAA-Compliant
 > HIPAA-compliant lab result pipeline for a US longevity & hormone optimization practice.
 
