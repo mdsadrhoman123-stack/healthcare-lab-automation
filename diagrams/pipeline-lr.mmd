@@ -1,0 +1,18 @@
+flowchart LR
+    in(["A lab result comes back"])
+    read["Read against this practice's own ranges"]
+    chk{"Inside expected parameters?"}
+    phy["Outside → a physician reviews it"]
+    send["Communicated securely"]
+
+    in --> read
+    read --> chk
+    chk --> send
+    chk -.-> phy
+    phy --> send
+
+    classDef default fill:#F8F7F3,stroke:#12151B,stroke-width:1px,color:#12151B;
+    classDef ok fill:#2F6B52,stroke:#12151B,stroke-width:1px,color:#F5F4EF;
+    classDef bad fill:#FEE2E2,stroke:#DC2626,stroke-width:1.5px,color:#7F1D1D;
+    class send ok;
+    class phy bad;
