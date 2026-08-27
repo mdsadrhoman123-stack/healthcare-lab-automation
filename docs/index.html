@@ -29,6 +29,12 @@ header.hero{background:var(--ink);color:#F5F4EF;padding:76px 0 68px;
 header.hero h1{font-size:clamp(38px,6vw,64px);line-height:1.03;margin:0 0 20px}
 header.hero p.promise{font-size:19px;line-height:1.55;color:#C6CFDB;
   max-width:60ch;margin:0 0 30px}
+/* The demo is a single file — someone may well open it with no README in
+   sight, so the provenance has to travel with it. */
+header.hero p.prov{font-size:14px;line-height:1.62;color:#8A94A3;
+  max-width:66ch;margin:24px 0 0;border-left:2px solid #2E3542;
+  padding-left:14px}
+header.hero p.prov b{color:#C6CFDB}
 .meta{display:flex;flex-wrap:wrap;gap:10px}
 .pill{font-size:12px;letter-spacing:.4px;padding:6px 12px;border-radius:999px;
   border:1px solid #2E3542;color:#A9B3C1}
@@ -135,10 +141,15 @@ a{color:var(--green)}
     <h1>Lab Result Automation</h1>
     <p class="promise">Lab results are interpreted against protocol-specific ranges and routed to a physician when they fall outside them — with every touch of patient data logged.</p>
     <div class="meta">
-      <span class="pill ok">Phase 0 validation</span>
+      <span class="pill ok">prototype · validation stage</span>
       <span class="pill">Healthcare</span>
-      <span class="pill">Built for Longevity / hormone-optimization clinic (US)</span>
+      <span class="pill">For Longevity / hormone-optimization clinics (US)</span>
+      <span class="pill">Not cleared for live use</span>
     </div>
+    <p class="prov">Built from a real brief — businesses in this sector post
+    this problem publicly, in their own words, and I built a system for the
+    problem exactly as stated. It is built and documented, and held at validation stage — it has never been run against live records.
+    <b>It has not been sold or deployed into a customer's business: it is available, not delivered.</b></p>
   </div>
 </header>
 
@@ -219,7 +230,7 @@ a{color:var(--green)}
 </footer>
 
 <script>
-var DATA = {"nodes": [{"id": "in", "label": "A lab result comes back", "kind": "trigger"}, {"id": "read", "label": "Read against this practice's own ranges", "kind": "step"}, {"id": "chk", "label": "Inside expected parameters?", "kind": "logic"}, {"id": "phy", "label": "Outside → a physician reviews it", "kind": "fail"}, {"id": "send", "label": "Communicated securely", "kind": "success"}], "edges": [{"a": "in", "b": "read"}, {"a": "read", "b": "chk"}, {"a": "chk", "b": "send"}, {"a": "chk", "b": "phy"}, {"a": "phy", "b": "send"}], "fails": [{"what": "Result is outside expected range", "detect": "Reference range check", "does": "Routed to the physician queue — never auto-communicated", "who": "Physician notified"}, {"what": "Reference range is not configured", "detect": "Missing configuration", "does": "Held for physician review rather than compared to a generic range", "who": "Alert on the unconfigured marker"}, {"what": "Ingestion receives a malformed result", "detect": "Validation at ingestion", "does": "Rejected before storage, nothing partially written", "who": "Alert with the reference"}, {"what": "Any read or write of patient data", "detect": "Access logging", "does": "Not a failure — recorded so it can be audited later", "who": "Auditable after the fact"}, {"what": "Delivery to the patient fails", "detect": "Provider response", "does": "Held and retried; the record shows undelivered", "who": "Alert, not a silent drop"}, {"what": "Anything unanticipated", "detect": "Error handling per stage", "does": "Halt before patient communication", "who": "Alert with the record reference"}], "journey": [{"h": "A result comes back", "b": "Ingestion validates it before anything is stored."}, {"h": "It is stored safely", "b": "Encrypted at rest, and the access is logged — because in healthcare who looked matters as much as what was stored."}, {"h": "It is read against the right ranges", "b": "Longevity and hormone protocols do not use standard clinical ranges. The interpretation uses the practice's own."}, {"h": "A physician decides the edge cases", "b": "Anything outside expected parameters goes to a physician queue. The system assists; it never decides."}, {"h": "The patient hears clearly", "b": "A summary with clinical context, delivered securely."}, {"h": "And it is all auditable", "b": "Every touch of patient data can be reconstructed afterwards."}], "name": "Lab Result Automation", "eyebrow": "42-node lab pipeline, HIPAA-first", "promise": "Lab results are interpreted against protocol-specific ranges and routed to a physician when they fall outside them — with every touch of patient data logged.", "client": "Longevity / hormone-optimization clinic (US)", "status": "Phase 0 validation", "metrics": [["Workflow nodes", "42"], ["Delivery milestone", "Phase 0 validation"], ["Autonomous clinical decisions", "0"]]};
+var DATA = {"nodes": [{"id": "in", "label": "A lab result comes back", "kind": "trigger"}, {"id": "read", "label": "Read against this practice's own ranges", "kind": "step"}, {"id": "chk", "label": "Inside expected parameters?", "kind": "logic"}, {"id": "phy", "label": "Outside → a physician reviews it", "kind": "fail"}, {"id": "send", "label": "Communicated securely", "kind": "success"}], "edges": [{"a": "in", "b": "read"}, {"a": "read", "b": "chk"}, {"a": "chk", "b": "send"}, {"a": "chk", "b": "phy"}, {"a": "phy", "b": "send"}], "fails": [{"what": "Result is outside expected range", "detect": "Reference range check", "does": "Routed to the physician queue — never auto-communicated", "who": "Physician notified"}, {"what": "Reference range is not configured", "detect": "Missing configuration", "does": "Held for physician review rather than compared to a generic range", "who": "Alert on the unconfigured marker"}, {"what": "Ingestion receives a malformed result", "detect": "Validation at ingestion", "does": "Rejected before storage, nothing partially written", "who": "Alert with the reference"}, {"what": "Any read or write of patient data", "detect": "Access logging", "does": "Not a failure — recorded so it can be audited later", "who": "Auditable after the fact"}, {"what": "Delivery to the patient fails", "detect": "Provider response", "does": "Held and retried; the record shows undelivered", "who": "Alert, not a silent drop"}, {"what": "Anything unanticipated", "detect": "Error handling per stage", "does": "Halt before patient communication", "who": "Alert with the record reference"}], "journey": [{"h": "A result comes back", "b": "Ingestion validates it before anything is stored."}, {"h": "It is stored safely", "b": "Encrypted at rest, and the access is logged — because in healthcare who looked matters as much as what was stored."}, {"h": "It is read against the right ranges", "b": "Longevity and hormone protocols do not use standard clinical ranges. The interpretation uses the practice's own."}, {"h": "A physician decides the edge cases", "b": "Anything outside expected parameters goes to a physician queue. The system assists; it never decides."}, {"h": "The patient hears clearly", "b": "A summary with clinical context, delivered securely."}, {"h": "And it is all auditable", "b": "Every touch of patient data can be reconstructed afterwards."}], "name": "Lab Result Automation", "eyebrow": "42-node lab pipeline, HIPAA-first", "promise": "Lab results are interpreted against protocol-specific ranges and routed to a physician when they fall outside them — with every touch of patient data logged.", "audience": "Longevity / hormone-optimization clinics (US)", "status": "prototype · validation stage", "metrics": [["Workflow nodes", "42"], ["Delivery milestone", "Phase 0 validation"], ["Autonomous clinical decisions", "0"]]};
 
 var flow = document.getElementById('flow');
 DATA.nodes.forEach(function(n, i){

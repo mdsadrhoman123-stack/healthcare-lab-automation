@@ -1,6 +1,6 @@
 # 01 · The problem
 
-**Lab Result Automation** — Longevity / hormone-optimization clinic (US)
+**Lab Result Automation** — the problem, as Longevity / hormone-optimization clinics (US) describe it
 
 ---
 
@@ -22,4 +22,4 @@ Ingestion, encrypted storage with access logging, interpretation against the pra
 
 ---
 
-[← README](../README.md) · [02 · The client journey →](02-journey.md)
+[← README](../README.md) · [02 · The journey →](02-journey.md)
