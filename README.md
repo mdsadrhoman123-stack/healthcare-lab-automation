@@ -7,9 +7,7 @@
 ![prototype · validation stage](https://img.shields.io/badge/status-prototype%20%C2%B7%20validation%20stage-B45309?style=flat-square) ![availability](https://img.shields.io/badge/availability-not%20cleared%20for%20live%20use-B45309?style=flat-square) ![sector](https://img.shields.io/badge/sector-Healthcare-12151B?style=flat-square) ![built with](https://img.shields.io/badge/built%20with-n8n-12151B?style=flat-square) ![Workflow nodes](https://img.shields.io/badge/Workflow%20nodes-42-5B6472?style=flat-square)
 
 > [!NOTE]
-> **Where this system comes from.** Businesses in this sector post this problem publicly, in their own words — job briefs on Upwork and Fiverr. I took the brief as the specification, designed a system for the problem exactly as stated, and built it to production standard on my own infrastructure. Nothing in it was added to look impressive: every part of it answers something in the brief.
->
-> It was built as a product rather than a one-off — built once, ready to deploy for any business with this problem. **It has not been sold or deployed into a customer's business: it is available, not delivered.** What follows is the real system — how it works, how it fails, and what it does not do.
+> **What this is.** A production-grade system built to a brief that businesses in this sector post publicly, in their own words — the problem exactly as they stated it, not one invented to demonstrate something. It was engineered the way anything a business actually depends on has to be: the failure paths designed before the features, every one of them logged and alerted rather than left to chance. It is built and documented in full, and deliberately held at validation stage. It is not cleared for live use yet, and it has not been sold or deployed into a customer's business.
 
 > [!IMPORTANT]
 > **This one is at validation stage — it has never been run against live patient records, and it must not be.** It is documented as scoped and built, not as a proven outcome. Compliance-critical systems do not go live on a single release.
@@ -17,11 +15,12 @@
 | | |
 | :--- | :--- |
 | **Built for** | Longevity / hormone-optimization clinics (US) |
-| **The brief** | Real briefs, posted publicly — businesses in this sector describing this exact problem in their own words, on Upwork and Fiverr |
+| **The brief** | The problem exactly as businesses in this sector post it — public job briefs on Upwork and Fiverr, in their words, not my framing |
 | **Industry** | Healthcare |
 | **Status** | prototype · validation stage |
-| **My role** | Sole engineer — I read the brief, scoped it, designed the system, built it and ran it |
-| **Availability** | Built and documented, held at validation stage. Not cleared for live use, not sold, and not running inside a customer's business. |
+| **Failure paths designed** | 6 — each with how it is detected, what the system does about it, and who finds out |
+| **My role** | Sole engineer — scoping, architecture, build, failure design and operation |
+| **Availability** | Built and documented in full, held at validation stage. Not cleared for live use, and not sold yet. |
 
 ---
 
