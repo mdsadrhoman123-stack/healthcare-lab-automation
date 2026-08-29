@@ -26,7 +26,7 @@
 
 ### On this page
 
-[The problem](#the-problem) · [What changed](#what-changed) · [How it works](#how-it-works) · [When it breaks](#when-it-breaks) · [The stack](#the-stack) · [Limitations](#honest-limitations) · [What is here](#what-is-in-this-repository) · [Read deeper](#read-deeper)
+[The problem](#the-problem) · [What changed](#what-changed) · [How it works](#how-it-works) · [The shape of it](#the-shape-of-the-system) · [When it breaks](#when-it-breaks) · [Why this way](#why-it-is-built-this-way) · [Limitations](#honest-limitations) · [What is here](#what-is-in-this-repository) · [Read deeper](#read-deeper)
 
 ---
 
@@ -117,29 +117,35 @@ Red appears in exactly one role across every repo in this portfolio: where failu
 
 > **Walk it interactively** — [`docs/index.html`](docs/index.html) is a single self-contained page. Download it, open it in any browser, and press **Break it** to watch the failure path light up. Nothing to install, no network calls.
 
-## When it breaks
+## The shape of the system
 
-Most automation portfolios show you the happy path. The happy path is the easy half. This is the half that decides whether a system survives contact with a real business.
+Parts and the role each one plays. Not the wiring — no execution order, no prompt text, no thresholds. That is a deliberate line, and the last branch of the tree names exactly what sits on the other side of it.
 
-| What goes wrong | How it is detected | What the system does | Who finds out |
-| :--- | :--- | :--- | :--- |
-| **Result is outside expected range** | Reference range check | Routed to the physician queue — never auto-communicated | Physician notified |
-| **Reference range is not configured** | Missing configuration | Held for physician review rather than compared to a generic range | Alert on the unconfigured marker |
-| **Ingestion receives a malformed result** | Validation at ingestion | Rejected before storage, nothing partially written | Alert with the reference |
-| **Any read or write of patient data** | Access logging | Not a failure — recorded so it can be audited later | Auditable after the fact |
-| **Delivery to the patient fails** | Provider response | Held and retried; the record shows undelivered | Alert, not a silent drop |
-| **Anything unanticipated** | Error handling per stage | Halt before patient communication | Alert with the record reference |
+```text
+Lab Result Automation — the running system
+│
+├── Memory .......................... what is remembered, and for how long
+│   └── PostgreSQL (encrypted) ...... Encryption at rest, access logged per read and write
+│
+├── Oversight ....................... how a human stays in the loop
+│   └── Audit logging ............... Actor identity recorded on every touch of patient data
+│
+├── Ground .......................... what the whole thing runs on
+│   ├── n8n ......................... Self-hosted orchestration — PHI stays inside the practice's boundary
+│   └── Secure API integrations ..... Encryption in transit between every stage
+│
+├── Failure design .................. 6 paths, designed before the features
+│   ├── detected by ................. an error output, a timer, or a failed connection
+│   ├── handled by .................. falling back, holding, or halting — never guessing
+│   └── announced to ................ a named person, with the reason attached
+│
+└── Not in this repository .......... the part that would let you skip the thinking
+    ├── the node graph .............. which part runs after which, and on what condition
+    ├── the thresholds .............. what counts as urgent, late, at capacity, a match
+    └── the credentials ............. never committed, in any form, at any point
+```
 
-The default on an unhandled condition is to **stop and tell someone** — never to continue on a guess. A silent success is the failure mode that costs the most, because nobody goes looking for it.
-
-## The stack
-
-| Component | Why this one |
-| :--- | :--- |
-| **n8n** | Self-hosted orchestration — PHI stays inside the practice's boundary |
-| **PostgreSQL (encrypted)** | Encryption at rest, access logged per read and write |
-| **Audit logging** | Actor identity recorded on every touch of patient data |
-| **Secure API integrations** | Encryption in transit between every stage |
+Read it as a set of decisions rather than a parts list. Every part is there because a specific failure or a specific constraint put it there, and the two sections below are the same story told twice: **When it breaks** is what each part is defending against, and **Honest limitations** is what it costs to have chosen that part and not another.
 
 ### Counted, not estimated
 
@@ -155,6 +161,60 @@ The default on an unhandled condition is to **stop and tell someone** — never 
 
 - Scoped with a dedicated Phase 0 infrastructure validation milestone: compliance-critical systems do not go live on a single release.
 
+## When it breaks
+
+Most automation portfolios show you the happy path. The happy path is the easy half. This is the half that decides whether a system survives contact with a real business.
+
+| What goes wrong | How it is detected | What the system does | Who finds out |
+| :--- | :--- | :--- | :--- |
+| **Result is outside expected range** | Reference range check | Routed to the physician queue — never auto-communicated | Physician notified |
+| **Reference range is not configured** | Missing configuration | Held for physician review rather than compared to a generic range | Alert on the unconfigured marker |
+| **Ingestion receives a malformed result** | Validation at ingestion | Rejected before storage, nothing partially written | Alert with the reference |
+| **Any read or write of patient data** | Access logging | Not a failure — recorded so it can be audited later | Auditable after the fact |
+| **Delivery to the patient fails** | Provider response | Held and retried; the record shows undelivered | Alert, not a silent drop |
+| **Anything unanticipated** | Error handling per stage | Halt before patient communication | Alert with the record reference |
+
+The default on an unhandled condition is to **stop and tell someone** — never to continue on a guess. A silent success is the failure mode that costs the most, because nobody goes looking for it.
+
+## Why it is built this way
+
+Three decisions, each with the option that was turned down and the price of turning it down. A choice with no cost attached to it was not a choice — it was a default, and defaults are not worth reading about.
+
+<details open>
+<summary><b>Why the physician queue cannot be taken out</b></summary>
+
+**What it does.** Anything outside expected parameters routes to a person before it reaches a patient.
+
+**What was turned down.** Releasing normal results automatically. That is where the volume is — and deciding that a result is normal is a clinical judgement, which is not a judgement this system is entitled to make on its own.
+
+**What that costs.** A required bottleneck, permanently. Removing it would remove the reason the system is safe to use at all.
+
+</details>
+
+<details>
+<summary><b>Why it is self-hosted, with every read logged</b></summary>
+
+**What it does.** Orchestration stays inside the practice boundary, storage is encrypted at rest, and the actor is recorded on every single touch of patient data.
+
+**What was turned down.** A hosted orchestrator. Someone else's uptime problem instead of the practice's — and protected health information transits a vendor, and the audit trail becomes only as complete as what that vendor exposes.
+
+**What that costs.** The practice owns the infrastructure, and every read costs a log write. Interpretation is also bounded by the reference ranges configured here, so this is not a general clinical tool.
+
+</details>
+
+<details>
+<summary><b>Why this one says Phase 0 out loud</b></summary>
+
+**What it does.** It is described as validation, because it is not yet running against live patient records.
+
+**What was turned down.** Describing it as production, like the others. It would read stronger in a portfolio — and it would be untrue, and in healthcare that is the exact claim a client would be right to check.
+
+**What that costs.** It reads as the least finished project in the portfolio. That is a real cost, and it is the honest one.
+
+</details>
+
+Every cost above also appears in **Honest limitations** below. It is there twice on purpose: once as the reasoning, once as the consequence, so neither can be quietly dropped from the other.
+
 ## Honest limitations
 
 Every design decision costs something. These are the trade-offs in this build, stated by the person who made them.
@@ -165,36 +225,40 @@ Every design decision costs something. These are the trade-offs in this build, s
 
 ## What is in this repository
 
+Every file, and the question it answers. Same layout in all eleven repositories in this portfolio, so the second one you open needs no orientation at all.
+
 ```text
 healthcare-lab-automation/
-├── README.md                      ← you are here
-├── SECURITY.md                    # how to report something that should not be public
-├── NOTICE.md                      # what is withheld, and why
-├── LICENSE                        # covers the documentation, not a software grant
+├── README.md ....................... ← you are here
+├── SECURITY.md ..................... how to report something that should not be public
+├── NOTICE.md ....................... what is withheld, and why
+├── LICENSE ......................... covers the documentation, not a software grant
 │
-├── docs/
-│   ├── index.html                 # the interactive demo — one file, opens with no network
-│   ├── 01-problem.md              # the situation before, in full
-│   ├── 02-journey.md              # step by step, from their side
-│   ├── 03-architecture.md         # the diagrams and the reasoning
-│   ├── 04-failure-handling.md     # every failure path, and where it lands
-│   ├── 05-stack.md                # what was chosen, and what was rejected
-│   ├── 06-results.md              # what is measured, and what is not
-│   └── 07-limitations.md          # the trade-offs, in detail
+├── docs/ ........................... the long form — read in order or not at all
+│   ├── index.html .................. the interactive demo, one file, no network
+│   ├── 01-problem.md ............... the situation before, in full
+│   ├── 02-journey.md ............... step by step, from their side
+│   ├── 03-architecture.md .......... the diagrams, and why they are shaped that way
+│   ├── 04-failure-handling.md ...... every failure path, and where it lands
+│   ├── 05-stack.md ................. each choice, the option turned down, the cost
+│   ├── 06-results.md ............... what is measured, and what is deliberately not
+│   └── 07-limitations.md ........... the trade-offs, in detail
 │
-├── diagrams/
-│   ├── pipeline-lr.mmd            # the client-level flow, left to right
-│   └── pipeline-tb.mmd            # the same flow, top to bottom
+├── diagrams/ ....................... source, so the flow can be re-rendered
+│   ├── pipeline-lr.mmd ............. the client-level flow, left to right
+│   └── pipeline-tb.mmd ............. the same flow, top to bottom
 │
-├── assets/                        # banner and closing card, SVG, no CDN
+├── assets/ ......................... SVG only — nothing loaded from a CDN
+│   ├── banner.svg .................. the header on this page
+│   └── cta.svg ..................... the closing card
 │
-├── workflows/
-│   └── README.md                  # empty on purpose — see below
+├── workflows/ ...................... empty on purpose — see below
+│   └── README.md ................... why it is empty, in writing
 │
-└── .github/
-    ├── honesty-check.py           # the claim linter behind the badge
+└── .github/ ........................ the badge at the top of this page
+    ├── honesty-check.py ............ the claim linter it runs
     └── workflows/
-        └── honesty-check.yml      # runs it on every push
+        └── honesty-check.yml ....... runs it on every push
 ```
 
 There is no `src/` in that tree, and no `workflows/*.json`. That is not an omission — it is the design, and the next section says exactly what is being withheld and why.
